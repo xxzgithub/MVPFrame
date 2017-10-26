@@ -10,6 +10,7 @@ package bwie.com.mvpframe.utils;
  * 修改备注：
  */
 
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -21,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -31,13 +33,18 @@ import okhttp3.Response;
 
 /**
  * Created by dell on 2017/9/28.
- 网络权限!!!!
- 要加ok依赖:compile 'com.squareup.okhttp3:okhttp:3.9.0'
+ * 网络权限!!!!
+ * 要加ok依赖:compile 'com.squareup.okhttp3:okhttp:3.9.0'
  */
 
 
 public class OkHttp {
-
+    //缓存文件夹
+    File cacheFile = new File(Environment.getExternalStorageDirectory().getPath(), "cache");
+    //缓存大小为10M
+    int cacheSize = 10 * 1024 * 1024;
+    //创建缓存对象
+    final Cache cache = new Cache(cacheFile, cacheSize);
     /**
      * 静态实例
      */
@@ -67,6 +74,7 @@ public class OkHttp {
         mClient.newBuilder().readTimeout(10, TimeUnit.SECONDS);
         mClient.newBuilder().writeTimeout(10, TimeUnit.SECONDS);
         mClient.newBuilder().addInterceptor(new MyOKApplicationInterceptor());
+//        mClient.newBuilder().cache(cache);
         /**
          * 如果是用的3.0之前的版本 使用以下直接设置连接超时.读取超时，写入超时
          */
