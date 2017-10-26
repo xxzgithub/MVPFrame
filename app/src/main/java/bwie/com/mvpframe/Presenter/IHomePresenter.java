@@ -11,7 +11,7 @@ package bwie.com.mvpframe.Presenter;
  */
 
 public interface IHomePresenter {
-    void loadData();
+    void loadData(String paht);
 
     void detachView();
 }

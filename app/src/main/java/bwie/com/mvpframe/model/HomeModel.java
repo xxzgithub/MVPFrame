@@ -36,8 +36,8 @@ public class HomeModel {
     }
 
     //请求数据的方法
-    public void getData(final CallBackListener<HomeBean> callBackListener) {
-        OkHttp.getAsync(getJsonUrl(), new OkHttp.DataCallBack() {
+    public void getData(String path, final CallBackListener<HomeBean> callBackListener) {
+        OkHttp.getAsync(getJsonUrl(path), new OkHttp.DataCallBack() {
             @Override
             public void requestFailure(Request request, IOException e) {
                 callBackListener.onFail(null);
@@ -53,10 +53,10 @@ public class HomeModel {
         });
     }
 
-    public String getJsonUrl() {
+    public String getJsonUrl(String path) {
         StringBuffer buffer = new StringBuffer();
         buffer.append(Constant.Urlcontainer.Baseweather)
-                .append("news/latest");
+                .append(path);
                 /*.append("pscid=")
                 .append(page + "");*/
         return buffer.toString();

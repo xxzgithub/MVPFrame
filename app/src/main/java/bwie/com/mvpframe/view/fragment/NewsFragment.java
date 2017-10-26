@@ -1,11 +1,11 @@
 package bwie.com.mvpframe.view.fragment;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,9 +16,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.RelativeLayout;
-
-import com.bawei.swiperefreshlayoutlibrary.SwipyRefreshLayout;
-import com.bawei.swiperefreshlayoutlibrary.SwipyRefreshLayoutDirection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +53,8 @@ public class NewsFragment extends BaseFragment implements IView<HomeBean>, BaseF
     @BindView(R.id.rev_news)
     RecyclerView mRevNews;
     @BindView(R.id.swipy)
-    SwipyRefreshLayout mSwipy;
+    SwipeRefreshLayout mSwipy;
+
 
     private HomePresenterImpl mHomePresenter;
 
@@ -82,34 +80,47 @@ public class NewsFragment extends BaseFragment implements IView<HomeBean>, BaseF
         }
 
     };
+    private List<HomeBean.StoriesBean> mStories;
+    private HomeRclAdapter mHomeRclAdapter;
+    private LinearLayoutManager mLayout;
 
     @Override
     protected void initListener() {
+        mSwipy.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                /*p++;
+                getDaes();
+                myadapter.notifyDataSetChanged();*/
+//                mStories.clear();
+                mHomePresenter.loadData("news/latest");
+                mHomeRclAdapter = new HomeRclAdapter(getContext(), R.layout.home_rcl_item_layout, mStories);
+                mRevNews.setAdapter(mHomeRclAdapter);
+                mHomeRclAdapter.notifyDataSetChanged();
+                mSwipy.setRefreshing(false);
+            }
+        });
+        mRevNews.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                int lastVisibleItemPosition = mLayout.findLastVisibleItemPosition();
+                if (lastVisibleItemPosition == mStories.size() - 1) {
+                    /*p++;
+                    getDaes();
+                    myadapter.notifyDataSetChanged();*/
+
+
+                }
+            }
+        });
 
     }
 
     @Override
     protected void initData() {
         mHomePresenter = new HomePresenterImpl(this);
-        mHomePresenter.loadData();
-
-        //设置刷新时旋转的圆圈的颜色
-        mSwipy.setColorSchemeColors(Color.RED, Color.YELLOW, Color.BLUE, Color.GRAY, Color.GREEN);
-        //设置支持上啦刷新还是下拉加载,还是全都支持
-        mSwipy.setDirection(SwipyRefreshLayoutDirection.BOTH);
-        mSwipy.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh(int index) {
-
-                mSwipy.setRefreshing(false);
-            }
-
-            @Override
-            public void onLoad(int index) {
-
-                mSwipy.setRefreshing(false);
-            }
-        });
+        mHomePresenter.loadData("news/latest");
     }
 
     @Override
@@ -172,7 +183,7 @@ public class NewsFragment extends BaseFragment implements IView<HomeBean>, BaseF
 
             }
         });
-        handler.sendEmptyMessageDelayed(0, 1000);
+//        handler.sendEmptyMessageDelayed(0, 1000);
     }
 
     @Override
@@ -198,12 +209,13 @@ public class NewsFragment extends BaseFragment implements IView<HomeBean>, BaseF
     @Override
     public void refreshView(HomeBean homeBean) {
         if (homeBean != null) {
-            List<HomeBean.StoriesBean> stories = homeBean.stories;
-            mRevNews.setLayoutManager(new LinearLayoutManager(getContext()));
-            mRevNews.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayout.VERTICAL));
-            HomeRclAdapter homeRclAdapter = new HomeRclAdapter(getContext(), R.layout.home_rcl_item_layout, stories);
-            mRevNews.setAdapter(homeRclAdapter);
         }
+        mStories = homeBean.stories;
+        mLayout = new LinearLayoutManager(getContext());
+        mRevNews.setLayoutManager(mLayout);
+        mRevNews.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayout.VERTICAL));
+        mHomeRclAdapter = new HomeRclAdapter(getContext(), R.layout.home_rcl_item_layout, mStories);
+        mRevNews.setAdapter(mHomeRclAdapter);
     }
 
     @Override

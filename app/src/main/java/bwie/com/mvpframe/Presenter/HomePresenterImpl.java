@@ -26,8 +26,8 @@ public class HomePresenterImpl implements IHomePresenter {
     }
 
     @Override
-    public void loadData() {
-        HomeModel.getIntsance().getData(new CallBackListener<HomeBean>() {
+    public void loadData(String path) {
+        HomeModel.getIntsance().getData(path, new CallBackListener<HomeBean>() {
             @Override
             public void onStart() {
 
